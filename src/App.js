@@ -6,6 +6,7 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Navigation from './components/Navigation/Navigation';
 import Logo from './components/Logo/Logo';
 import Rank from './components/Rank/Rank';
+import SignIn from './components/SignIn/SignIn';
 import './App.css';
 
 const app = new Clarifai.App({
@@ -15,7 +16,7 @@ const app = new Clarifai.App({
 const particleOption = {
     particles: {
         number: {
-            value: 30,
+            value: 115,
             density: {
                 enable: true,
                 value_area: 800
@@ -31,6 +32,7 @@ class App extends Component {
             input: '',
             imageURL: '',
             box: {},
+            route: 'signin'
         }
     }
 
@@ -72,10 +74,15 @@ class App extends Component {
           params={particleOption}
           />
           <Navigation/>
-          <Logo/>
-          <Rank/>
-          <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-          <FaceRecognition box={this.state.box} imageURL={this.state.imageURL}/>
+          { this.state.route === 'signin'
+              ? <SignIn />
+              : <div>
+                  <Logo />
+                  <Rank />
+                  <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
+                  <FaceRecognition box={this.state.box} imageURL={this.state.imageURL}/>
+              </div>
+          }
       </div>
     );
   }
