@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Navigation from './components/Navigation/Navigation';
 import SignIn from './components/SignIn/SignIn';
@@ -9,10 +8,6 @@ import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import './App.css';
-
-const app = new Clarifai.App({
-    apiKey: 'b8aa772c93f9488bbb1e6032ce3ba3fa'
-});
 
 const particleOption = {
     particles: {
@@ -42,7 +37,7 @@ const initialState = {
 };
 
 class App extends Component {
-    constructor () {
+    constructor() {
         super();
         this.state = initialState;
     }
@@ -73,7 +68,7 @@ class App extends Component {
     };
 
     displayFaceBox = (box) => {
-        this.setState({box : box});
+        this.setState({box: box});
     };
 
     onInputChange = (event) => {
@@ -82,12 +77,16 @@ class App extends Component {
 
     onPictureSubmit = () => {
         this.setState({imageURL: this.state.input});
-        app.models
-            .predict(
-                Clarifai.FACE_DETECT_MODEL,
-                this.state.input)
+        fetch('http://localhost:3001/imageurl', {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                input: this.state.input
+            })
+        })
+            .then(response => response.json())
             .then(response => {
-                if(response){
+                if (response) {
                     fetch('http://localhost:3001/image', {
                         method: 'put',
                         headers: {'Content-Type': 'application/json'},
@@ -97,7 +96,7 @@ class App extends Component {
                     })
                         .then(response => response.json())
                         .then(count => {
-                            this.setState(Object.assign(this.state.user, { entries: count }))
+                            this.setState(Object.assign(this.state.user, {entries: count}))
                         })
                         .catch(console.log)
                 }
@@ -115,39 +114,39 @@ class App extends Component {
         this.setState({route: route});
     };
 
-  render() {
-      const {isSignedIn, imageURL, route, box} = this.state;
-      return (
-          <div className="App">
-              <Particles className='particles'
-                         params={particleOption}
-              />
-              <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
-              {route === 'home'
-                  ? <div>
-                      <Logo/>
-                      <Rank
-                      name ={this.state.user.name}
-                      entries={this.state.user.entries}
-                      />
-                      <ImageLinkForm
-                          onInputChange={this.onInputChange}
-                          onButtonSubmit={this.onPictureSubmit}/>
-                      <FaceRecognition box={box} imageURL={imageURL}/>
-                  </div>
-                  : (
-                      route === 'signin'
-                          ? <SignIn
-                              loadUser={this.loadUser}
-                              onRouteChange={this.onRouteChange}/>
-                          : <Register
-                              loadUser={this.loadUser}
-                              onRouteChange={this.onRouteChange}/>
-                  )
-              }
-          </div>
-      );
-  }
+    render() {
+        const {isSignedIn, imageURL, route, box} = this.state;
+        return (
+            <div className="App">
+                <Particles className='particles'
+                           params={particleOption}
+                />
+                <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
+                {route === 'home'
+                    ? <div>
+                        <Logo/>
+                        <Rank
+                            name={this.state.user.name}
+                            entries={this.state.user.entries}
+                        />
+                        <ImageLinkForm
+                            onInputChange={this.onInputChange}
+                            onButtonSubmit={this.onPictureSubmit}/>
+                        <FaceRecognition box={box} imageURL={imageURL}/>
+                    </div>
+                    : (
+                        route === 'signin'
+                            ? <SignIn
+                                loadUser={this.loadUser}
+                                onRouteChange={this.onRouteChange}/>
+                            : <Register
+                                loadUser={this.loadUser}
+                                onRouteChange={this.onRouteChange}/>
+                    )
+                }
+            </div>
+        );
+    }
 }
 
 export default App;
